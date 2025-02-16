@@ -2,6 +2,10 @@
   "tasks": {
     "dev": "deno run --watch ./index.ts",
     "serve": "deno run --watch --allow-net ./serve.ts",
-    "fetch": "deno run --watch --allow-net ./fetch.ts"
+    "fetch": "deno run --watch --allow-net ./fetch.ts",
+    "vercel": "vercel dev ../."
+  },
+  "imports": {
+    "@vercel/node": "npm:@vercel/node@^5.1.7"
   }
 }
