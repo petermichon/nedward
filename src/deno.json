@@ -1,5 +1,7 @@
 {
   "tasks": {
-    "dev": "deno run --watch ./index.ts"
+    "dev": "deno run --watch ./index.ts",
+    "serve": "deno run --watch --allow-net ./serve.ts",
+    "fetch": "deno run --watch --allow-net ./fetch.ts"
   }
 }
