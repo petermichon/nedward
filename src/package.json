@@ -1,8 +1,5 @@
 {
   "dependencies": {
     "@vercel/node": "^2.3.0"
-  },
-  "scripts": {
-    "build": "echo 'Building...'"
   }
 }
