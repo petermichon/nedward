@@ -21,4 +21,8 @@ export default function main() {
   ovh.request('GET', '/me', function (err, me) {
     console.log(err || 'Welcome ' + me.firstname);
   });
+
+  ovh.request('GET', '/me/api/application', function (err, app) {
+    console.log(app);
+  });
 }
