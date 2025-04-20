@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "@ovhcloud/node-ovh": "^3.0.0",
     "mongodb": "^6.15.0"
   }
 }
