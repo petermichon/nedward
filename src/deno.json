@@ -1,8 +1,6 @@
 {
   "tasks": {
-    "dev": "deno run --watch ./index.ts",
-    "serve": "deno run --watch --allow-net ./serve.ts",
-    "fetch": "deno run --watch --allow-net ./fetch.ts",
-    "vercel": "vercel dev ../."
+    "dev": "deno run --watch --allow-env --allow-sys --allow-read --allow-net ./index.ts",
+    "connect": "deno run --allow-env --allow-sys --allow-read --allow-net connect.ts"
   }
 }
