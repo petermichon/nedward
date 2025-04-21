@@ -1,52 +1,42 @@
 import createOvh from '@ovhcloud/node-ovh';
 
-function login(): any {
-  // @ts-ignore
-  const APP_KEY = Deno.env.get('APP_KEY');
-  // @ts-ignore
-  const APP_SECRET = Deno.env.get('APP_SECRET');
-  // @ts-ignore
-  const CONSUMER_KEY = Deno.env.get('CONSUMER_KEY');
+type Client = any;
 
-  // console.log(APP_KEY);
-  // console.log(APP_SECRET);
-  // console.log(CONSUMER_KEY);
+type Credentials = {
+  appKey: string;
+  appSecret: string;
+  consumerKey: string;
+};
 
-  const ovh = createOvh({
-    appKey: APP_KEY,
-    appSecret: APP_SECRET,
-    consumerKey: CONSUMER_KEY,
-  });
-
-  return ovh;
+export function createClient(creds: Credentials): Client {
+  const client = createOvh(creds);
+  return client;
 }
 
-export async function ovhConnect(): Promise<any> {
-  const ovh = login();
-
-  // ovh.request('GET', '/me', function (err, me) {
-  //   console.log(err || 'Welcome ' + me.firstname);
-  // });
-
-  const promise = ovh.requestPromised('GET', '/me');
-
+// Get account informations
+// GET /me
+export function getMe(c: Client): Promise<any> {
+  const method = 'GET';
+  const path = '/me';
+  const promise = c.requestPromised(method, path);
   return promise;
 }
 
-export async function ovhQuery(): Promise<void> {
-  const ovh = login();
-
-  /*ovh.request('GET', '/me/api/application', function (err, app) {
-    if (err) {
-      console.log(err);
-      return;
-    }
-    console.log(app);
-  });*/
-
+// List API Keys
+// GET /me/api/application
+// https://www.ovh.com/auth/api/createToken
+export function getAppApiKeys(c: Client): Promise<any> {
   const method = 'GET';
   const path = '/me/api/application';
-  const promise = ovh.requestPromised(method, path);
+  const promise = c.requestPromised(method, path);
+  return promise;
+}
 
+// List MongoDB databases
+// GET /cloud/project/{serviceName}/database/mongodb
+export function getMongodb(c: Client, serviceName: string): Promise<any> {
+  const method = 'GET';
+  const path = '/cloud/project/' + serviceName + '/database/mongodb';
+  const promise = c.requestPromised(method, path);
   return promise;
 }

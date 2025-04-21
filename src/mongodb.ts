@@ -2,6 +2,26 @@ import { MongoClient, WithId, Document } from 'mongodb';
 
 // curl ipinfo.io/ip
 
+function mongoTests() {
+  {
+    const p = mongoConnect();
+
+    p.then(function (response) {
+      console.log('Connected successfully to MongoDB');
+    }).catch(function (error) {
+      console.log('Unable to connect to MongoDB:', error.message);
+    });
+  }
+
+  {
+    const result = mongoQuery();
+
+    result.then(function (response) {
+      console.log(response?.name);
+    });
+  }
+}
+
 function login(): MongoClient {
   // @ts-ignore
   const username = Deno.env.get('USERNAME');

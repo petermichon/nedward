@@ -1,40 +1,53 @@
-import { ovhConnect, ovhQuery } from './ovh.ts';
-import { mongoConnect, mongoQuery } from './mongodb.ts';
+import { createClient, getAppApiKeys, getMe, getMongodb } from './ovh.ts';
 
 export default function main() {
-  {
-    const promise = ovhConnect();
+  // @ts-ignore
+  const APP_KEY = Deno.env.get('APP_KEY');
+  // @ts-ignore
+  const APP_SECRET = Deno.env.get('APP_SECRET');
+  // @ts-ignore
+  const CONSUMER_KEY = Deno.env.get('CONSUMER_KEY');
 
-    promise.then(function (response) {
-      const name = response.firstname;
-      console.log('Welcome ' + name);
-    });
+  const credentials = {
+    appKey: APP_KEY,
+    appSecret: APP_SECRET,
+    consumerKey: CONSUMER_KEY,
+  };
+  const client = createClient(credentials);
+
+  {
+    const promise = getMe(client);
+    promise
+      .then(function (response) {
+        console.log(response.firstname);
+      })
+      .catch(function (error) {
+        console.log(error.message);
+      });
   }
 
   {
-    const promise = ovhQuery();
-
-    promise.then(function (response) {
-      const apps = response;
-      console.log(apps);
-    });
+    const promise = getAppApiKeys(client);
+    promise
+      .then(function (response) {
+        console.log(response);
+      })
+      .catch(function (error) {
+        console.log(error.message);
+      });
   }
 
   {
-    const p = mongoConnect();
+    // TestProject
+    const serviceName = 'c72b585f83fe4c8bab172e1cb7927dd6';
 
-    p.then(function (response) {
-      console.log('Connected successfully to MongoDB');
-    }).catch(function (error) {
-      console.log('Unable to connect to MongoDB:', error.message);
-    });
-  }
-
-  {
-    const result = mongoQuery();
-
-    result.then(function (response) {
-      console.log(response?.name);
-    });
+    const promise = getMongodb(client, serviceName);
+    promise
+      .then(function (response) {
+        console.log(response);
+      })
+      .catch(function (error) {
+        console.log(error.message);
+      });
   }
 }
