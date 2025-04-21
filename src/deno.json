@@ -1,6 +1,5 @@
 {
   "tasks": {
-    "dev": "deno run --watch --allow-env --allow-sys --allow-read --allow-net ./index.ts",
-    "connect": "deno run --allow-env --allow-sys --allow-read --allow-net connect.ts"
+    "dev": "deno run --watch --allow-env --allow-sys --allow-read --allow-net ./index.ts"
   }
 }

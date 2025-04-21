@@ -1,28 +1,26 @@
-import createOvh from '@ovhcloud/node-ovh';
+import { ovhConnect, ovhQuery } from './ovh.ts';
+import { mongoConnect, mongoQuery } from './mongodb.ts';
 
 export default function main() {
-  // @ts-ignore
-  const APP_KEY = Deno.env.get('APP_KEY');
-  // @ts-ignore
-  const APP_SECRET = Deno.env.get('APP_SECRET');
-  // @ts-ignore
-  const CONSUMER_KEY = Deno.env.get('CONSUMER_KEY');
+  {
+    const promise = ovhConnect();
 
-  // console.log(APP_KEY);
-  // console.log(APP_SECRET);
-  // console.log(CONSUMER_KEY);
+    promise.then(function (response) {
+      const name = response.firstname;
+      console.log('Welcome ' + name);
+    });
+  }
 
-  const ovh = createOvh({
-    appKey: APP_KEY,
-    appSecret: APP_SECRET,
-    consumerKey: CONSUMER_KEY,
-  });
+  {
+    const promise = ovhQuery();
 
-  ovh.request('GET', '/me', function (err, me) {
-    console.log(err || 'Welcome ' + me.firstname);
-  });
+    promise.then(function (response) {
+      const apps = response;
+      console.log(apps);
+    });
+  }
 
-  ovh.request('GET', '/me/api/application', function (err, app) {
-    console.log(app);
-  });
+  // mongoConnect();
+
+  // mongoQuery();
 }
