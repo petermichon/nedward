@@ -20,7 +20,21 @@ export default function main() {
     });
   }
 
-  // mongoConnect();
+  {
+    const p = mongoConnect();
 
-  // mongoQuery();
+    p.then(function (response) {
+      console.log('Connected successfully to MongoDB');
+    }).catch(function (error) {
+      console.log('Unable to connect to MongoDB:', error.message);
+    });
+  }
+
+  {
+    const result = mongoQuery();
+
+    result.then(function (response) {
+      console.log(response?.name);
+    });
+  }
 }

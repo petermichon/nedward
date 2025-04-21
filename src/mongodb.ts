@@ -1,4 +1,4 @@
-import { MongoClient } from 'mongodb';
+import { MongoClient, WithId, Document } from 'mongodb';
 
 // curl ipinfo.io/ip
 
@@ -20,20 +20,17 @@ function login(): MongoClient {
   return client;
 }
 
-export async function mongoConnect() {
+export async function mongoConnect(): Promise<MongoClient> {
   const client = login();
 
-  try {
-    await client.connect();
-    console.log('Connected successfully to MongoDB');
-  } catch (error) {
-    console.error('Error connecting to MongoDB:', error);
-  } finally {
-    await client.close();
-  }
+  const result = client.connect();
+
+  await client.close();
+
+  return result;
 }
 
-export async function mongoQuery() {
+export async function mongoQuery(): Promise<WithId<Document> | null> {
   const client = login();
   // await client.connect();
 
@@ -43,7 +40,8 @@ export async function mongoQuery() {
   // collection.insertOne({ name: 'nedward' })
 
   const result = await collection.findOne({ name: 'nedward' });
-  console.log(result);
 
   await client.close();
+
+  return result;
 }
