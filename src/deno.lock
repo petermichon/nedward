@@ -161,6 +161,8 @@
     "packageJson": {
       "dependencies": [
         "npm:@ovhcloud/node-ovh@3",
+        "npm:@scaleway/serverless-functions@^1.1.2",
+        "npm:@types/node@^22.14.1",
         "npm:mongodb@^6.15.0"
       ]
     }

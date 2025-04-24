@@ -1,6 +1,10 @@
 {
   "dependencies": {
     "@ovhcloud/node-ovh": "^3.0.0",
+    "@scaleway/serverless-functions": "^1.1.2",
     "mongodb": "^6.15.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.14.1"
   }
 }
