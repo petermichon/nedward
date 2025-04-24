@@ -1,4 +1,10 @@
-import { createClient, getAppApiKeys, getMe, getMongodb } from './ovh.ts';
+import {
+  createClient,
+  getAppApiKeys,
+  getClustersProperties,
+  getMe,
+  listMongodbs,
+} from './ovh.ts';
 
 export default function main() {
   // @ts-ignore
@@ -15,39 +21,59 @@ export default function main() {
   };
   const client = createClient(credentials);
 
+  // TestProject
+  const serviceName = 'c72b585f83fe4c8bab172e1cb7927dd6';
+
+  // MongoDB
+  const clusterId = '6b6196f2-ebba-4b65-9869-e762f0b2abe9';
+
   {
-    const promise = getMe(client);
-    promise
+    getMe(client)
       .then(function (response) {
-        console.log(response.firstname);
+        console.log('1:', response.firstname);
       })
       .catch(function (error) {
-        console.log(error.message);
+        console.log('1:', error.message);
       });
   }
 
   {
-    const promise = getAppApiKeys(client);
-    promise
+    getAppApiKeys(client)
       .then(function (response) {
-        console.log(response);
+        console.log('2:', response);
       })
       .catch(function (error) {
-        console.log(error.message);
+        console.log('2:', error.message);
       });
   }
 
   {
-    // TestProject
-    const serviceName = 'c72b585f83fe4c8bab172e1cb7927dd6';
-
-    const promise = getMongodb(client, serviceName);
-    promise
+    listMongodbs(client, serviceName)
       .then(function (response) {
-        console.log(response);
+        console.log('3:', response);
       })
       .catch(function (error) {
-        console.log(error.message);
+        console.log('3:', error.message);
       });
+  }
+
+  {
+    getClustersProperties(client, serviceName, clusterId)
+      .then(function (response) {
+        const description = response.description;
+        const engine = response.engine;
+        const plan = response.plan;
+        const storage = response.storage.size.value;
+        const unit = response.storage.size.unit;
+        const status = response.status;
+        console.log('4:', description, engine, plan, storage, unit, status);
+      })
+      .catch(function (error) {
+        console.log('4:', error.message);
+      });
+  }
+
+  {
+    // ...
   }
 }
