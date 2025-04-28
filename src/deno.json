@@ -1,6 +1,5 @@
 {
   "tasks": {
-    "dev": "deno run --watch --allow-env --allow-sys --allow-read --allow-net ./index.ts",
-    "scw": "deno run --watch --allow-env --allow-sys --allow-net scaleway.ts"
+    "dev": "deno run --watch --allow-env --allow-sys --allow-read --allow-net ./index.ts"
   }
 }
