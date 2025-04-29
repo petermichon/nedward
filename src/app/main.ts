@@ -1,31 +1,68 @@
+import { denoRun } from './denoRun.ts';
+import { injectCall } from './injectCall.ts';
+
 export default function main() {
   {
-    const path = './functions/';
-    const filename = 'helloworld.ts';
+    const func = { name: 'hello' };
+    const files = {
+      source: {
+        path: './functions/' + func.name + '.txt',
+        content: '',
+      },
+      dest: {
+        path: './functions/' + func.name + '.ts',
+        content: '',
+      },
+    };
+    const call = { name: func.name, args: [] };
 
-    const content = `
-      function helloworld() {
-        return 'Hello World!';
-      }
+    files.source.content = Deno.readTextFileSync(files.source.path);
 
-      helloworld();
-    `;
+    files.dest.content = injectCall(files.source.content, call);
 
-    // Deno.writeTextFileSync(path + filename, content);
+    Deno.writeTextFileSync(files.dest.path, files.dest.content);
+  }
+
+  {
+    const func = { name: 'greet' };
+    const files = {
+      source: {
+        path: './functions/' + func.name + '.txt',
+        content: '',
+      },
+      dest: {
+        path: './functions/' + func.name + '.ts',
+        content: '',
+      },
+    };
+    const call = {
+      name: func.name,
+      args: [
+        { name: 'name1', type: 'string' },
+        { name: 'name2', type: 'string' },
+      ],
+    };
+
+    files.source.content = Deno.readTextFileSync(files.source.path);
+
+    files.dest.content = injectCall(files.source.content, call);
+
+    Deno.writeTextFileSync(files.dest.path, files.dest.content);
   }
 
   {
     const path = './functions/';
-    const filename = 'helloworld.ts';
-    const params = '{}';
+    const filename = 'hello.ts';
+    // const params = '{}';
+    const params: string[] = [];
 
-    const resp = runDeno(path + filename, params);
+    const resp = denoRun(path + filename, params);
 
     resp.then((resp) => {
       const output = resp.output;
       const error = resp.error;
 
-      console.log(output);
+      console.log('RESPONSE :', output);
       if (error) {
         console.error(error);
       }
@@ -35,44 +72,18 @@ export default function main() {
   {
     const path = './functions/';
     const filename = 'greet.ts';
-    const params = '{"name1":"Alice", "name2":"Bob"}';
+    const params = ['Alice', 'Bob'];
 
-    const resp = runDeno(path + filename, params);
+    const resp = denoRun(path + filename, params);
 
     resp.then((resp) => {
       const output = resp.output;
       const error = resp.error;
 
-      console.log(output);
+      console.log('RESPONSE :', output);
       if (error) {
         console.error(error);
       }
     });
   }
-}
-
-interface Response {
-  output: string;
-  error: string;
-}
-
-async function runDeno(path: string, params: string): Promise<Response> {
-  const command = new Deno.Command(Deno.execPath(), {
-    args: ['run', path, params],
-    stdin: 'piped',
-    stdout: 'piped',
-    stderr: 'piped',
-  });
-
-  const { stdin, stdout, stderr } = command.spawn();
-
-  const out = await stdout.getReader().read();
-  const err = await stderr.getReader().read();
-
-  const outDecoded = new TextDecoder().decode(out.value);
-  const errDecoded = new TextDecoder().decode(err.value);
-
-  const resp: Response = { output: outDecoded, error: errDecoded };
-
-  return resp;
 }
