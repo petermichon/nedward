@@ -7,6 +7,87 @@ import {
 } from './ovh.ts';
 
 export default function main() {
+  {
+    const path = './functions/';
+    const filename = 'helloworld.ts';
+
+    const content = `
+      function helloworld() {
+        return 'Hello World!';
+      }
+
+      helloworld();
+    `;
+    // @ts-ignore
+    // Deno.writeTextFileSync(path + filename, content);
+  }
+
+  {
+    const path = './functions/';
+    const filename = 'helloworld.ts';
+    const params = '{}';
+
+    const resp = runDeno(path + filename, params);
+
+    resp.then((resp) => {
+      const output = resp.output;
+      const error = resp.error;
+
+      console.log(output);
+      if (error) {
+        console.error(error);
+      }
+    });
+  }
+
+  {
+    const path = './functions/';
+    const filename = 'greet.ts';
+    const params = '{"name1":"Alice", "name2":"Bob"}';
+
+    const resp = runDeno(path + filename, params);
+
+    resp.then((resp) => {
+      const output = resp.output;
+      const error = resp.error;
+
+      console.log(output);
+      if (error) {
+        console.error(error);
+      }
+    });
+  }
+}
+
+interface Response {
+  output: string;
+  error: string;
+}
+
+async function runDeno(path: string, params: string): Promise<Response> {
+  const command = {
+    cmd: ['deno', 'run', path, params],
+    stdout: 'piped',
+    stderr: 'piped',
+  };
+
+  // @ts-ignore
+  const process = Deno.run(command);
+
+  const output = await process.output();
+  const error = await process.stderrOutput();
+
+  process.close();
+
+  const decodedOutput = new TextDecoder().decode(output);
+  const decodedError = new TextDecoder().decode(error);
+
+  const resp: Response = { output: decodedOutput, error: decodedError };
+
+  return resp;
+}
+
+function mongo() {
   // @ts-ignore
   const APP_KEY = Deno.env.get('APP_KEY');
   // @ts-ignore
