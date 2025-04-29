@@ -23,9 +23,7 @@ function mongoTests() {
 }
 
 function login(): MongoClient {
-  // @ts-ignore
   const username = Deno.env.get('USERNAME');
-  // @ts-ignore
   const password = Deno.env.get('PASSWORD');
 
   const uri =

@@ -4,8 +4,9 @@ function greet(name1: string, name2: string) {
 }
 
 {
-  // @ts-ignore
-  const params = JSON.parse(Deno.args);
+  type Params = { name1: string; name2: string };
+
+  const params: Params = JSON.parse(Deno.args[0]);
 
   const name1 = params.name1;
   const name2 = params.name2;

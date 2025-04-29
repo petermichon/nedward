@@ -18,7 +18,7 @@ export default function main() {
 
       helloworld();
     `;
-    // @ts-ignore
+
     // Deno.writeTextFileSync(path + filename, content);
   }
 
@@ -65,35 +65,30 @@ interface Response {
 }
 
 async function runDeno(path: string, params: string): Promise<Response> {
-  const command = {
-    cmd: ['deno', 'run', path, params],
+  const command = new Deno.Command(Deno.execPath(), {
+    args: ['run', path, params],
+    stdin: 'piped',
     stdout: 'piped',
     stderr: 'piped',
-  };
+  });
 
-  // @ts-ignore
-  const process = Deno.run(command);
+  const { stdin, stdout, stderr } = command.spawn();
 
-  const output = await process.output();
-  const error = await process.stderrOutput();
+  const out = await stdout.getReader().read();
+  const err = await stderr.getReader().read();
 
-  process.close();
+  const outDecoded = new TextDecoder().decode(out.value);
+  const errDecoded = new TextDecoder().decode(err.value);
 
-  const decodedOutput = new TextDecoder().decode(output);
-  const decodedError = new TextDecoder().decode(error);
-
-  const resp: Response = { output: decodedOutput, error: decodedError };
+  const resp: Response = { output: outDecoded, error: errDecoded };
 
   return resp;
 }
 
 function mongo() {
-  // @ts-ignore
-  const APP_KEY = Deno.env.get('APP_KEY');
-  // @ts-ignore
-  const APP_SECRET = Deno.env.get('APP_SECRET');
-  // @ts-ignore
-  const CONSUMER_KEY = Deno.env.get('CONSUMER_KEY');
+  const APP_KEY = Deno.env.get('APP_KEY') as string;
+  const APP_SECRET = Deno.env.get('APP_SECRET') as string;
+  const CONSUMER_KEY = Deno.env.get('CONSUMER_KEY') as string;
 
   const credentials = {
     appKey: APP_KEY,
@@ -140,7 +135,7 @@ function mongo() {
 
   {
     getClustersProperties(client, serviceName, clusterId)
-      .then(function (response) {
+      .then(function (response: any) {
         const description = response.description;
         const engine = response.engine;
         const plan = response.plan;
@@ -149,7 +144,7 @@ function mongo() {
         const status = response.status;
         console.log('4:', description, engine, plan, storage, unit, status);
       })
-      .catch(function (error) {
+      .catch(function (error: any) {
         console.log('4:', error.message);
       });
   }

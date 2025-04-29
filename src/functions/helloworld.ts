@@ -4,8 +4,7 @@ function helloworld() {
 }
 
 {
-  // @ts-ignore
-  const params = JSON.parse(Deno.args);
+  const params = JSON.parse(Deno.args[0]);
 
   console.log(JSON.stringify(helloworld()));
 }
