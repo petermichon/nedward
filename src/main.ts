@@ -1,17 +1,25 @@
 import { handle } from './handler.ts'
 
 async function main() {
+  // HTTP
+  const http = Deno.serve({
+    port: 8080,
+    handler: handle,
+  })
+
+  // HTTPS
   const certPath = './secret/fullchain.pem'
   const keyPath = './secret/privkey.pem'
 
-  // const cert = Deno.readTextFileSync(certPath)
-  // const key = Deno.readTextFileSync(keyPath)
+  const cert = Deno.readTextFileSync(certPath)
+  const key = Deno.readTextFileSync(keyPath)
 
-  // const options = { port: 8443, cert: cert, key: key }
-
-  // Deno.serve(options, handler)
-  const http = Deno.serve({ port: 8080, handler: handle })
-  const https = Deno.serve({ port: 8443, handler: handle })
+  const https = Deno.serve({
+    port: 8443,
+    cert: cert,
+    key: key,
+    handler: handle,
+  })
 
   await Promise.all([http, https])
 }
