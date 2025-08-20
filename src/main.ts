@@ -1,8 +1,8 @@
 import { handle } from './handler.ts'
 
-async function main() {
+function main() {
   // HTTP
-  const http = Deno.serve({
+  Deno.serve({
     port: 8080,
     handler: handle,
   })
@@ -14,14 +14,12 @@ async function main() {
   const cert = Deno.readTextFileSync(certPath)
   const key = Deno.readTextFileSync(keyPath)
 
-  const https = Deno.serve({
+  Deno.serve({
     port: 8443,
     cert: cert,
     key: key,
     handler: handle,
   })
-
-  await Promise.all([http, https])
 }
 
 function redirect(req: Request): Response {
