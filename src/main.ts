@@ -22,6 +22,7 @@ function main() {
   })
 }
 
+// note: remember to not redirect /.well-known/* to https
 function redirect(req: Request): Response {
   // Redirect HTTP to HTTPS
   const url = new URL(req.url)
