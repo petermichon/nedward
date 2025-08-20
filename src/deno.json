@@ -1,0 +1,11 @@
+{
+  "tasks": {
+    "dev": "deno run --allow-net --allow-read --watch index.ts"
+  },
+  "lint": {
+    "rules": {
+      "include": [],
+      "exclude": ["no-unused-vars", "no-empty", "no-explicit-any"]
+    }
+  }
+}
