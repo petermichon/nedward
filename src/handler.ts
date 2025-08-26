@@ -1,13 +1,38 @@
 import { serveDir } from 'https://deno.land/std@0.224.0/http/file_server.ts'
 
+import { api } from './api.ts'
+
 async function handle(req: Request): Promise<Response> {
   const url = new URL(req.url)
 
   const host = url.hostname
-  const subdomain = host.split('.')[0]
+  const firstDomain = host.split('.')[0]
+  const secondDomain = host.split('.')[1] || ''
 
   const root = './public/'
-  const path = root + subdomain
+  const path = root + firstDomain
+
+  // ---
+
+  // Doesn't work for all top level domains (like .co.uk)
+  // nedward.petermichon.fr
+  // nedward.localhost
+
+  const noSubdomain =
+    (secondDomain !== 'localhost' && host.split('.').length === 2) ||
+    (firstDomain === 'localhost' && host.split('.').length === 1)
+
+  // API
+  if (noSubdomain) {
+    const method = req.method
+    const route = url.pathname
+    const body = await req.text()
+
+    const response = api({ method, route, body })
+    return response
+  }
+
+  // ---
 
   // Try to serve static file first
   let response = await serveDir(req, { fsRoot: path })
