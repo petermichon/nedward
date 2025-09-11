@@ -1,4 +1,5 @@
-const workspace = '~/nedward-workspace'
+// Also needs to be changed in deno.json
+const workspace = './workspace'
 
 function main() {
   const certPath = `${workspace}/secret/fullchain.pem`
