@@ -1,2 +1,2 @@
-# /src/public/*
-/src/secret/*
+# /src/workspace/*
+/src/workspace/secret/*
