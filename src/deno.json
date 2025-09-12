@@ -1,11 +1,14 @@
 {
   "tasks": {
-    "dev": "deno run --allow-net --allow-read --allow-write --watch index.ts"
+    "dev": "deno run --allow-net --allow-read=./workspace --allow-write=./workspace --watch index.ts"
   },
   "lint": {
     "rules": {
       "include": [],
       "exclude": ["no-unused-vars", "no-empty", "no-explicit-any"]
     }
+  },
+  "imports": {
+    "@std/http": "jsr:@std/http@^1.0.20"
   }
 }

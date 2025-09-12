@@ -1,3 +1,5 @@
+import { serveDir } from '@std/http/file-server'
+
 // Also needs to be changed in deno.json
 const workspace = './workspace'
 
@@ -93,10 +95,36 @@ async function handle(req: Request): Promise<Response> {
     return response
   }
 
-  // curl -X POST https://localhost:8443/api/v1/files -d '{"container":"example","files":{"index.html":"Hello, World!"}}'
+  // serve files
+  if (method === 'GET') {
+    const host = url.hostname
+    const firstDomain = host.split('.')[0]
 
-  const message = 'Not found\n'
+    const root = './workspace/public/'
+    const path = root + firstDomain
+
+    // Try to serve static file first
+    let response = await serveDir(req, { fsRoot: path })
+
+    // If file not found, fallback to index.html for SPA routing
+    if (response.status === 404) {
+      try {
+        const indexContent = await Deno.readFile(`${path}/index.html`)
+        response = new Response(indexContent, {
+          status: 200,
+          headers: { 'content-type': 'text/html' },
+        })
+      } catch {
+        // If index.html is missing, fallback to original 404 response
+      }
+    }
+
+    return response
+  }
+
+  const message = 'Unknown route\n'
   const response = new Response(message, { status: 404 })
+
   return response
 }
 
