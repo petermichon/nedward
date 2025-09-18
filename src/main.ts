@@ -24,7 +24,16 @@ async function handle(req: Request): Promise<Response> {
   const method = req.method
   const route = url.pathname
   const body = await req.text()
-  // console.log(method + ' ' + route + ' ' + body)
+
+  const cors: HeadersInit = {
+    'Access-Control-Allow-Origin': '*',
+  }
+
+  // const cors: HeadersInit = {
+  //   'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE,OPTIONS',
+  //   'Access-Control-Allow-Headers': 'Content-Type',
+  //   'Access-Control-Max-Age': '86400',
+  // }
 
   // Read a file
   if (method === 'GET' && route === '/api/v1/files') {
@@ -41,7 +50,7 @@ async function handle(req: Request): Promise<Response> {
       value = Deno.readTextFileSync(key)
     } catch (error) {
       if (error instanceof Deno.errors.NotFound) {
-        return new Response('File not found\n', { status: 404 })
+        return new Response('File not found\n', { status: 404, headers: cors })
       }
       throw error
     }
@@ -49,13 +58,22 @@ async function handle(req: Request): Promise<Response> {
 
     // const message = method + ' ' + route + ' ' + body + '\n'
     const message = value
-    const response = new Response(message, { status: 200 })
+    const response = new Response(message, { status: 200, headers: cors })
+    return response
+  }
+
+  if (method === 'OPTIONS') {
+    const message = 'OK\n'
+    const response = new Response(message, { status: 200, headers: cors })
     return response
   }
 
   // Write a file
   if (method === 'POST' && route === '/api/v1/files') {
     // curl -X POST https://localhost:8443/api/v1/files?path=./test.txt -d $'Hello, World!\n'
+
+    // from a file : ./videos.json
+    // curl -X POST -H "Content-Type: application/json" --data-binary @videos.json "https://narval.petermichon.fr/api/v1/files?path=./narval/videos.json"
 
     const path = url.searchParams.get('path')
     console.log(path)
@@ -67,7 +85,7 @@ async function handle(req: Request): Promise<Response> {
 
     // const message = method + ' ' + route + ' ' + body + '\n'
     const message = 'OK\n'
-    const response = new Response(message, { status: 200 })
+    const response = new Response(message, { status: 200, headers: cors })
     return response
   }
 
@@ -84,14 +102,14 @@ async function handle(req: Request): Promise<Response> {
       Deno.removeSync(key, { recursive: false })
     } catch (error) {
       if (error instanceof Deno.errors.NotFound) {
-        return new Response('File not found\n', { status: 404 })
+        return new Response('File not found\n', { status: 404, headers: cors })
       }
       throw error
     }
 
     // const message = method + ' ' + route + ' ' + body + '\n'
     const message = 'OK\n'
-    const response = new Response(message, { status: 200 })
+    const response = new Response(message, { status: 200, headers: cors })
     return response
   }
 
@@ -122,8 +140,8 @@ async function handle(req: Request): Promise<Response> {
     return response
   }
 
-  const message = 'Unknown route\n'
-  const response = new Response(message, { status: 404 })
+  const message = 'Not Found\n'
+  const response = new Response(message, { status: 404, headers: cors })
 
   return response
 }
