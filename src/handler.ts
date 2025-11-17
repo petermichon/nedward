@@ -17,7 +17,7 @@ const cors: HeadersInit = {
 }
 
 // Also needs to be changed in deno.json
-const workspace = './workspace/'
+const workspace = './workspace'
 
 async function handle(req: Request): Promise<Response> {
   const url = new URL(req.url)
@@ -133,8 +133,6 @@ async function handle(req: Request): Promise<Response> {
     // from a file : ./videos.json
     // curl -X POST -H "Content-Type: application/json" --data-binary @videos.json "https://narval.petermichon.fr/api/v1/files?path=./narval/videos.json"
 
-    const body = await req.text()
-
     const params = {
       path: url.searchParams.get('path')!,
     }
@@ -146,9 +144,9 @@ async function handle(req: Request): Promise<Response> {
       })
     }
 
-    const path = `${workspace}/${params.path}`
+    const path = `${workspace}${params.path}`
 
-    const data = body // make data a Uint8Array ?
+    const data = await req.bytes()
 
     const error = writeFile(path, data)
     if (error) {
