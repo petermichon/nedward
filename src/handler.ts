@@ -1,98 +1,254 @@
-import { serveDir } from 'https://deno.land/std@0.224.0/http/file_server.ts'
+import { deleteFile } from './routes/deleteFile.ts'
+import { listFiles } from './routes/listFiles.ts'
+import { readFile } from './routes/readFile.ts'
+import { writeFile } from './routes/writeFile.ts'
 
-import { api } from './api.ts'
+const Status = {
+  Ok: 200,
+  Created: 201,
+  NoContent: 204,
+  BadRequest: 400,
+  NotFound: 404,
+  InternalServerError: 500,
+}
+
+const cors: HeadersInit = {
+  'Access-Control-Allow-Origin': '*',
+}
+
+// Also needs to be changed in deno.json
+const workspace = './workspace/'
 
 async function handle(req: Request): Promise<Response> {
   const url = new URL(req.url)
 
-  const host = url.hostname
-  const firstDomain = host.split('.')[0]
-  const secondDomain = host.split('.')[1] || ''
+  const method = req.method
+  const route = url.pathname
 
-  const root = './public/'
-  const path = root + firstDomain
+  // const origin = req.headers.get('origin') ?? '*'
 
-  // ---
+  if (method === 'OPTIONS') {
+    const origin = req.headers.get('origin') ?? '*'
+    const corsHeaders = new Headers({
+      'Access-Control-Allow-Origin': origin,
+      'Access-Control-Allow-Methods': 'GET,POST,PUT,PATCH,DELETE,OPTIONS',
+      'Access-Control-Allow-Headers':
+        'Content-Type,Authorization,X-Requested-With',
+      'Access-Control-Max-Age': '86400',
+    })
 
-  // Doesn't work for all top level domains (like .co.uk)
-  // nedward.petermichon.fr
-  // nedward.localhost
+    const message = 'OK\n'
+    const response = new Response(message, {
+      status: Status.Ok,
+      headers: corsHeaders,
+    })
 
-  const noSubdomain =
-    (secondDomain !== 'localhost' && host.split('.').length === 2) ||
-    (firstDomain === 'localhost' && host.split('.').length === 1)
-
-  // API
-  if (noSubdomain) {
-    const method = req.method
-    const route = url.pathname
-    const body = await req.text()
-
-    const response = api({ method, route, body })
     return response
   }
 
-  // ---
+  if (method === 'GET' && route === '/api/v1/files') {
+    // curl -X GET https://localhost:8443/api/v1/files
 
-  // Try to serve static file first
-  let response = await serveDir(req, { fsRoot: path })
-
-  // If file not found, fallback to index.html for SPA routing
-  if (response.status === 404) {
-    try {
-      const indexContent = await Deno.readFile(`${path}/index.html`)
-      response = new Response(indexContent, {
-        status: 200,
-        headers: { 'content-type': 'text/html' },
-      })
-    } catch {
-      // If index.html is missing, fallback to original 404 response
+    const params = {
+      path: url.searchParams.get('path') || '',
     }
+
+    const path = `${workspace}/${params.path}`
+
+    const result = listFiles(path)
+    if (result.error) {
+      // ...
+      return new Response('Internal Server Error\n', {
+        status: Status.InternalServerError,
+        headers: cors,
+      })
+    }
+    const files = result.value
+
+    const response = new Response(files, {
+      status: Status.Ok,
+      headers: cors,
+    })
+
+    return response
   }
 
-  return response
-}
+  if (method === 'GET' && route === '/api/v1/files/content') {
+    // curl -X GET https://localhost:8443/api/v1/files/content?path=./test.html
 
-async function handle1(req: Request): Promise<Response> {
-  const url = new URL(req.url)
+    const params = {
+      path: url.searchParams.get('path')!,
+    }
 
-  const host = url.hostname
+    if (!params.path) {
+      return new Response('Bad Request\n', {
+        status: Status.BadRequest,
+        headers: cors,
+      })
+    }
 
-  // when no subdomain is set, this is equal to the root domain
-  const subdomain = host.split('.')[0]
+    const path = `${workspace}${params.path}`
 
-  const root = './public/'
-  const path = root + subdomain
+    const result = readFile(path)
 
-  const response = await serveDir(req, { fsRoot: path })
+    if (result.error) {
+      console.log(result.error)
 
-  return response
-}
+      if (result.error instanceof Deno.errors.NotADirectory) {
+        return new Response('Bad Request\n', {
+          status: Status.BadRequest,
+          headers: cors,
+        })
+      }
+      if (result.error instanceof Deno.errors.NotFound) {
+        return new Response('Not Found\n', {
+          status: Status.NotFound,
+          headers: cors,
+        })
+      }
+      // else
+      return new Response('Internal Server Error\n', {
+        status: Status.InternalServerError,
+        headers: cors,
+      })
+    }
 
-async function handle2(req: Request): Promise<Response> {
-  // console.log(req)
+    const body = result.value
 
-  const url = new URL(req.url)
+    const headers: HeadersInit = {
+      'Access-Control-Allow-Origin': '*',
+      'Content-Type': 'image/jpeg',
+      // 'Content-Disposition': 'inline', // default (i think?)
+    }
+    const response = new Response(body, {
+      status: Status.Ok,
+      headers: headers,
+    })
+    return response
+  }
 
-  const path = url.pathname
-  // console.log('path:', path)
+  if (method === 'POST' && route === '/api/v1/files/content') {
+    // curl -X POST https://localhost:8443/api/v1/files?path=./test.txt -d $'Hello, World!\n'
 
-  const root = './public' + path
-  // console.log('root:', root)
+    // from a file : ./videos.json
+    // curl -X POST -H "Content-Type: application/json" --data-binary @videos.json "https://narval.petermichon.fr/api/v1/files?path=./narval/videos.json"
 
-  const host = path.split('/')[1]
-  // console.log('host:', host)
+    const body = await req.text()
 
-  const referer = req.headers.get('referer') || ''
-  console.log('referrer:', referer)
+    const params = {
+      path: url.searchParams.get('path')!,
+    }
 
-  // get only referer path
-  const refererPath = referer.split('/')[3] || ''
-  console.log('refererPath:', refererPath)
+    if (!params.path) {
+      return new Response('Bad Request\n', {
+        status: Status.BadRequest,
+        headers: cors,
+      })
+    }
 
-  const response = await serveDir(req, {
-    fsRoot: './public/narval/', // + refererPath
-    urlRoot: '',
+    const path = `${workspace}/${params.path}`
+
+    const data = body // make data a Uint8Array ?
+
+    const error = writeFile(path, data)
+    if (error) {
+      // ...
+      return new Response('Internal Server Error\n', {
+        status: Status.InternalServerError,
+        headers: cors,
+      })
+    }
+
+    const message = 'OK\n'
+    const response = new Response(message, {
+      status: Status.Ok,
+      headers: cors,
+    })
+    return response
+  }
+
+  if (method === 'DELETE' && route === '/api/v1/files') {
+    // curl -X DELETE https://localhost:8443/api/v1/files?path=./test.txt
+
+    const params = {
+      path: url.searchParams.get('path') || '',
+    }
+
+    const path = `${workspace}${params.path}`
+
+    const error = deleteFile(path)
+
+    if (error) {
+      if (error instanceof Deno.errors.NotFound) {
+        return new Response('Not Found\n', {
+          status: Status.NotFound,
+          headers: cors,
+        })
+      }
+      return new Response('Internal Server Error\n', {
+        status: Status.InternalServerError,
+        headers: cors,
+      })
+    }
+
+    const message = 'OK\n'
+    const response = new Response(message, {
+      status: Status.Ok,
+      headers: cors,
+    })
+    return response
+  }
+
+  if (method === 'GET') {
+    const host = url.hostname
+
+    const firstDomain = host.split('.')[0]
+
+    const path = `${workspace}${firstDomain}/index.html`
+
+    // const result = serveFile(path, req)
+    const result = readFile(path)
+    if (result.error) {
+      // ---
+      // if file not found, fallback to index.html for SPA routing
+      // if (response.status === Status.NotFound) {
+      //   try {
+      //     const indexContent = await Deno.readFile(`${path}/index.html`)
+      //     response = new Response(indexContent, {
+      //       status: Status.Ok,
+      //       headers: {
+      //         ...cors,
+      //         'content-type': 'text/html',
+      //       },
+      //     })
+      //   } catch {
+      //     // if index.html is missing, fallback to original NotFound response
+      //   }
+      // }
+      // ---
+      return new Response('Internal Server Error\n', {
+        status: Status.InternalServerError,
+        headers: cors,
+      })
+    }
+    const body = result.value
+
+    const response = new Response(body, {
+      status: Status.Ok,
+      headers: {
+        ...cors,
+        'content-type': 'text/html',
+      },
+    })
+
+    return response
+  }
+
+  // else
+  const message = 'Not Found\n'
+  const response = new Response(message, {
+    status: Status.NotFound,
+    headers: cors,
   })
 
   return response
