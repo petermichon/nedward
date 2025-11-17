@@ -1,6 +1,14 @@
 {
+  "permissions": {
+    "default": {
+      "net": true,
+      "write": ["./workspace/"],
+      "read": ["./workspace/"],
+      "env": true
+    }
+  },
   "tasks": {
-    "dev": "deno run --allow-net --allow-read=./workspace --allow-write=./workspace --allow-env --no-prompt --watch index.ts"
+    "dev": "deno run -P --no-prompt --watch index.ts"
   },
   "lint": {
     "rules": {
