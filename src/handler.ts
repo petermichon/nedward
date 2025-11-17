@@ -1,7 +1,7 @@
-import { deleteFile } from './routes/deleteFile.ts'
-import { listFiles } from './routes/listFiles.ts'
-import { readFile } from './routes/readFile.ts'
-import { writeFile } from './routes/writeFile.ts'
+import { deleteFile } from './core/deleteFile.ts'
+import { listFiles } from './core/listFiles.ts'
+import { readFile } from './core/readFile.ts'
+import { writeFile } from './core/writeFile.ts'
 
 const Status = {
   Ok: 200,
