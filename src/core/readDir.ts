@@ -5,7 +5,7 @@ type Result<V> = {
   error: Error
 }
 
-function listFiles(path: string): Result<string> {
+function readDir(path: string): Result<string> {
   let iterable: IteratorObject<Deno.DirEntry>
   try {
     iterable = Deno.readDirSync(path)
@@ -23,4 +23,4 @@ function listFiles(path: string): Result<string> {
   return { value: json, error: null }
 }
 
-export { listFiles }
+export { readDir }

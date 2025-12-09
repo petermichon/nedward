@@ -1,6 +1,6 @@
 type Error = any
 
-function deleteFile(path: string): Error {
+function removeFileDir(path: string): Error {
   try {
     Deno.removeSync(path, { recursive: false })
     return null
@@ -9,4 +9,4 @@ function deleteFile(path: string): Error {
   }
 }
 
-export { deleteFile }
+export { removeFileDir }

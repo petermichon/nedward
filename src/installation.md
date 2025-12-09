@@ -48,7 +48,7 @@ You can generate self-signed SSL certificates in the current directory by runnin
 
 ## About hosting
 
-If you want the backend to run in the background, use `nohup deno run serve &`. Use `pkill deno` to terminate all Deno processes.
+If you want the backend to run in the background, use `nohup deno run dev &`. Use `pkill deno` to terminate all Deno processes.
 
 ## Forward port 80 to 8080 & port 443 to 8443
 
