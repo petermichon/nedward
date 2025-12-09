@@ -1,3 +1,2 @@
-# /src/workspace/*
-/src/workspace/secret/*
-/src/secret/*
+# /workspace/*
+/secret/*
