@@ -1,0 +1,43 @@
+@import 'tailwindcss';
+
+/* --- */
+
+@font-face {
+  font-family: 'Fredoka';
+  src: url('/fonts/Fredoka-VariableFont_wdth,wght.ttf') format('truetype');
+  /* font-weight: 400; */
+  /* font-style: normal; */
+}
+
+@font-face {
+  font-family: 'MavenPro';
+  src: url('/fonts/MavenPro-VariableFont_wght.ttf') format('truetype');
+}
+
+/* --- */
+
+/*
+@plugin 'tailwind-scrollbar' {
+  nocompatible: true;
+  preferredstrategy: 'pseudoelements'; */ /* Optional: for more styling options */
+/* } */
+
+/* .scrollbar-hover-visible */
+
+.scrollbar-invisible {
+  scrollbar-width: none;
+  /* -ms-overflow-style: none; */ /* IE/Edge ? */
+}
+
+.hover-scrollbar-visible:hover {
+  scrollbar-width: auto;
+  /* -ms-overflow-style: auto; */ /* IE/Edge ? */
+}
+
+@media (pointer: coarse) {
+  .hover-scrollbar-visible {
+    scrollbar-width: thin;
+  }
+}
+
+/* --- */
